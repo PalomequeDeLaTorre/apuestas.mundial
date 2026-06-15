@@ -269,7 +269,7 @@ export default function HomePage() {
                   id="participante"
                   type="text"
                   className="input-gold"
-                  placeholder="Ej. Abuela Carmen"
+                  placeholder="Ej. Tetogol"
                   value={participante}
                   onChange={(e) => setParticipante(e.target.value)}
                   maxLength={100}
