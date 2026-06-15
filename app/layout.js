@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Apuestas Familiares · Mundial 2026',
+  title: 'Apuestas de la Plebe · Mundial 2026',
   description: 'Registra tu apuesta para el Mundial 2026 — México, EE.UU. y Canadá',
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>",

@@ -224,7 +224,7 @@ export default function HomePage() {
           <TrophyIcon />
 
           <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-none">
-            <span className="text-gold-gradient">Apuestas Familiares</span>
+            <span className="text-gold-gradient">Apuestas de la Plebe</span>
           </h1>
 
           <p className="text-[#FFD700]/70 font-semibold text-base md:text-lg tracking-wide uppercase">
