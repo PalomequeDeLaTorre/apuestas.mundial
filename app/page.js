@@ -1,8 +1,8 @@
-// src/app/page.js
+// app/page.js
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { GRUPOS } from '@/lib/equipos'
+import { GRUPOS, EQUIPOS_ELIMINADOS } from '@/lib/equipos'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -33,23 +33,43 @@ function TrophyIcon() {
 }
 
 function ApuestaCard({ apuesta, isNew }) {
+  // Comprobamos si el equipo de esta apuesta está en la lista de eliminados
+  const isEliminado = EQUIPOS_ELIMINADOS.includes(apuesta.equipo)
+
   return (
     <div
-      className={`card-apuesta p-5 flex flex-col gap-3 animate-slide-up ${isNew ? 'card-new' : ''}`}
+      className={`card-apuesta p-5 flex flex-col gap-3 animate-slide-up ${
+        isNew ? 'card-new' : ''
+      } ${isEliminado ? 'opacity-50 grayscale' : ''}`} // <-- Bajamos opacidad y ponemos en grises si está eliminado
     >
       {/* Team flag + name */}
-      <div className="flex items-center gap-3">
-        <span className="text-4xl leading-none select-none" role="img" aria-label={apuesta.equipo}>
-          {apuesta.bandera_emoji}
-        </span>
-        <div>
-          <p className="text-[#FFD700] font-bold text-lg leading-tight">{apuesta.equipo}</p>
-          <p className="text-white/50 text-xs font-mono mt-0.5">Mi selección</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-4xl leading-none select-none" role="img" aria-label={apuesta.equipo}>
+            {apuesta.bandera_emoji}
+          </span>
+          <div>
+            <p 
+              className={`${
+                isEliminado ? 'text-red-400 line-through' : 'text-[#FFD700]'
+              } font-bold text-lg leading-tight transition-colors`}
+            >
+              {apuesta.equipo}
+            </p>
+            <p className="text-white/50 text-xs font-mono mt-0.5">Mi selección</p>
+          </div>
         </div>
+        
+        {/* Etiqueta de Eliminado */}
+        {isEliminado && (
+          <span className="bg-red-950/80 text-red-400 border border-red-500/30 text-[10px] uppercase font-bold px-2 py-1 rounded">
+            Eliminado
+          </span>
+        )}
       </div>
 
       {/* Divider */}
-      <div className="gold-line" />
+      <div className={`${isEliminado ? 'bg-red-500/20' : 'gold-line'} h-px w-full`} />
 
       {/* Participant name */}
       <div className="flex items-center justify-between gap-2">
