@@ -427,7 +427,7 @@ export default function HomePage() {
               }}
             >
               <span>💰</span>
-              Bolsa acumulada: ${(apuestas.length * 200).toLocaleString('es-MX')}
+              Apuesta acumulada: ${(apuestas.length * 200).toLocaleString('es-MX')}
                 </div>
           </div>
         )}
