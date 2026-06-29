@@ -401,9 +401,10 @@ export default function HomePage() {
           <div className="flex-1 gold-line" />
         </div>
 
-        {/* ── Stats badge ── */}
+       {/* ── Stats badge ── */}
         {!loading && apuestas.length > 0 && (
-          <div className="flex justify-center animate-fade-in">
+          <div className="flex justify-center items-center gap-4 animate-fade-in flex-wrap">
+            {/* Badge Participantes (Dinámico) */}
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
               style={{
@@ -413,8 +414,21 @@ export default function HomePage() {
               }}
             >
               <span>👥</span>
-              {apuestas.length} {apuestas.length === 1 ? 'participante' : 'participantes'}
+              {apuestas.length} {apuestas.length <= 10 ? 'de 10' : ''} {apuestas.length === 1 ? 'participante' : 'participantes'}
             </div>
+
+            {/* Badge Premio Acumulado (Se actualiza en tiempo real) */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-[0_0_15px_rgba(34,197,94,0.15)]"
+              style={{
+                background: 'rgba(34,197,94,0.1)', 
+                border: '1px solid rgba(34,197,94,0.3)',
+                color: '#4ade80',
+              }}
+            >
+              <span>💰</span>
+              Bolsa acumulada: ${(apuestas.length * 200).toLocaleString('es-MX')}
+                </div>
           </div>
         )}
 
