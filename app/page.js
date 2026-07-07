@@ -8,7 +8,7 @@ import { GRUPOS, EQUIPOS_ELIMINADOS, CAMPEON_MUNDIAL, getBandera } from '@/lib/e
 
 // ════════════════════════════════════════════════════════════════════
 // 🔒 BLOQUEO DE REGISTRO - Cambia esto a true para bloquear
-const REGISTRO_BLOQUEADO = true  // <-- Cambia a true para bloquear
+const REGISTRO_BLOQUEADO = false  // <-- Cambia a true para bloquear
 // ════════════════════════════════════════════════════════════════════
 
 function formatDate(dateStr) {
