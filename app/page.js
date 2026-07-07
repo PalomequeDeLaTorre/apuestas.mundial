@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { GRUPOS, EQUIPOS_ELIMINADOS } from '@/lib/equipos'
+import { GRUPOS, EQUIPOS_ELIMINADOS, CAMPEON_MUNDIAL, getBandera } from '@/lib/equipos'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -37,15 +37,112 @@ function TrophyIcon() {
   )
 }
 
+// ─── 👑 NUEVO: SECCIÓN EMOTIVA DE CAMPEÓN DEL MUNDO ─────────────────────────
+function SeccionCampeon({ apuestas, campeon }) {
+  if (!campeon) return null
+
+  const bandera = getBandera(campeon)
+  const ganadores = apuestas.filter((a) => a.equipo === campeon)
+  const premioTotal = apuestas.length * 200
+  const premioPorGanador = ganadores.length > 0 ? Math.floor(premioTotal / ganadores.length) : 0
+
+  return (
+    <section className="relative overflow-hidden rounded-3xl border-2 border-[#FFD700] bg-gradient-to-b from-[#FFD700]/20 via-black to-black p-6 md:p-10 text-center shadow-[0_0_60px_rgba(255,215,0,0.25)] animate-fade-in my-8">
+      {/* Luces y destellos de fondo */}
+      <div 
+        className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#FFD700]/20 rounded-full blur-3xl pointer-events-none" 
+        aria-hidden="true" 
+      />
+
+      <div className="relative z-10 flex flex-col items-center gap-4">
+        {/* Etiqueta superior */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFD700]/20 border border-[#FFD700]/50 text-[#FFD700] text-xs md:text-sm font-black tracking-widest uppercase shadow-inner">
+          <span>✨</span> AWEBOO PERROS · COPA DEL MUNDO 2026 <span>✨</span>
+        </div>
+
+        {/* Bandera y corona con animación */}
+        <div className="relative mt-2">
+          <span className="text-4xl absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce select-none">
+            👑
+          </span>
+          <span className="text-7xl md:text-8xl leading-none select-none drop-shadow-[0_10px_20px_rgba(255,215,0,0.4)] block mt-3" role="img" aria-label={campeon}>
+            {bandera}
+          </span>
+        </div>
+
+        {/* Nombre del Equipo Campeón */}
+        <div>
+          <p className="text-white/60 text-xs md:text-sm font-mono tracking-widest uppercase mb-1">
+            Campeón Indiscutible
+          </p>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFF8DC] to-[#DAA520] uppercase drop-shadow-sm">
+            {campeon}
+          </h2>
+        </div>
+
+        <div className="gold-line w-40 my-2 opacity-60" />
+
+        {/* Celebración de los Ganadores de la Plebe */}
+        <div className="w-full max-w-2xl mt-2 bg-black/60 border border-[#FFD700]/30 rounded-2xl p-6 backdrop-blur-md">
+          <h3 className="text-[#FFD700] font-bold text-base md:text-lg uppercase tracking-wider mb-4 flex items-center justify-center gap-2">
+            <span>🎉</span> ¡El Oráculo de la Plebe! <span>🎉</span>
+          </h3>
+
+          {ganadores.length > 0 ? (
+            <div className="space-y-4">
+              <p className="text-white/80 text-sm md:text-base">
+                Honor y gloria para {ganadores.length === 1 ? 'el único visionario que le tuvo' : 'los visionarios que le tuvieron'} fe al campeón desde el día uno:
+              </p>
+
+              {/* Lista de ganadores */}
+              <div className="flex flex-wrap justify-center gap-3">
+                {ganadores.map((g) => (
+                  <div 
+                    key={g.id}
+                    className="flex items-center gap-2.5 bg-gradient-to-r from-[#FFD700]/20 to-[#FFD700]/10 border border-[#FFD700]/60 px-4 py-2 rounded-xl text-white font-bold text-lg shadow-[0_0_15px_rgba(255,215,0,0.15)] transform hover:scale-105 transition-transform"
+                  >
+                    <span className="text-xl select-none">🏆</span>
+                    <span>{g.participante}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desglose del premio */}
+              <div className="mt-4 pt-4 border-t border-white/10 flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6 text-xs md:text-sm text-white/60 font-mono">
+                <span>💰 Apuesta Total: <strong className="text-green-400 font-bold">${premioTotal.toLocaleString('es-MX')}</strong></span>
+                <span className="hidden sm:inline">·</span>
+                <span>🔥 Premio: <strong className="text-[#FFD700] font-bold">${premioPorGanador.toLocaleString('es-MX')}</strong></span>
+              </div>
+            </div>
+          ) : (
+            <div className="py-4 text-center space-y-2">
+              <p className="text-white/70 font-medium text-base">
+                ⚡ ¡Increíble! Ningún participante apostó por <strong className="text-white">{campeon}</strong>.
+              </p>
+              <p className="text-white/40 text-xs font-mono">
+                La bolsa acumulada de ${premioTotal.toLocaleString('es-MX')} se va intacta para el fondo de la próxima carnita asada familiar. 🥩🍺
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function ApuestaCard({ apuesta, isNew }) {
   // Comprobamos si el equipo de esta apuesta está en la lista de eliminados
   const isEliminado = EQUIPOS_ELIMINADOS.includes(apuesta.equipo)
+  // Comprobamos si es el campeón del mundo
+  const isCampeon = CAMPEON_MUNDIAL && apuesta.equipo === CAMPEON_MUNDIAL
 
   return (
     <div
       className={`card-apuesta p-5 flex flex-col gap-3 animate-slide-up ${
         isNew ? 'card-new' : ''
-      } ${isEliminado ? 'opacity-50 grayscale' : ''}`}
+      } ${isEliminado ? 'opacity-50 grayscale' : ''} ${
+        isCampeon ? 'border-[#FFD700] shadow-[0_0_20px_rgba(255,215,0,0.2)] bg-gradient-to-b from-[#FFD700]/10 to-transparent' : ''
+      }`}
     >
       {/* Team flag + name */}
       <div className="flex items-center justify-between gap-3">
@@ -56,7 +153,7 @@ function ApuestaCard({ apuesta, isNew }) {
           <div>
             <p 
               className={`${
-                isEliminado ? 'text-red-400 line-through' : 'text-[#FFD700]'
+                isEliminado ? 'text-red-400 line-through' : isCampeon ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFF8DC] font-black' : 'text-[#FFD700]'
               } font-bold text-lg leading-tight transition-colors`}
             >
               {apuesta.equipo}
@@ -65,8 +162,13 @@ function ApuestaCard({ apuesta, isNew }) {
           </div>
         </div>
         
-        {/* Etiqueta de Eliminado */}
-        {isEliminado && (
+        {/* Etiqueta de Estado */}
+        {isCampeon && (
+          <span className="bg-[#FFD700]/20 text-[#FFD700] border border-[#FFD700]/60 text-[10px] uppercase font-black px-2 py-1 rounded shadow-sm">
+            👑 Campeón
+          </span>
+        )}
+        {!isCampeon && isEliminado && (
           <span className="bg-red-950/80 text-red-400 border border-red-500/30 text-[10px] uppercase font-bold px-2 py-1 rounded">
             Eliminado
           </span>
@@ -74,7 +176,7 @@ function ApuestaCard({ apuesta, isNew }) {
       </div>
 
       {/* Divider */}
-      <div className={`${isEliminado ? 'bg-red-500/20' : 'gold-line'} h-px w-full`} />
+      <div className={`${isEliminado ? 'bg-red-500/20' : isCampeon ? 'bg-[#FFD700]/50' : 'gold-line'} h-px w-full`} />
 
       {/* Participant name */}
       <div className="flex items-center justify-between gap-2">
@@ -490,6 +592,11 @@ export default function HomePage() {
               Premio: ${(apuestas.length * 200).toLocaleString('es-MX')}
             </div>
           </div>
+        )}
+
+        {/* ── ⭐ SECCIÓN DE GLORIA ETERNA (SE MUESTRA SOLO SI HAY CAMPEÓN) ── */}
+        {!loading && (
+          <SeccionCampeon apuestas={apuestas} campeon={CAMPEON_MUNDIAL} />
         )}
 
         {/* ── SECCIÓN 1: APUESTAS VIVAS ── */}
