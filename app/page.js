@@ -6,6 +6,11 @@ import { GRUPOS, EQUIPOS_ELIMINADOS } from '@/lib/equipos'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+// ════════════════════════════════════════════════════════════════════
+// 🔒 BLOQUEO DE REGISTRO - Cambia esto a true para bloquear
+const REGISTRO_BLOQUEADO = true  // <-- Cambia a true para bloquear
+// ════════════════════════════════════════════════════════════════════
+
 function formatDate(dateStr) {
   const date = new Date(dateStr)
   return date.toLocaleDateString('es-MX', {
@@ -40,7 +45,7 @@ function ApuestaCard({ apuesta, isNew }) {
     <div
       className={`card-apuesta p-5 flex flex-col gap-3 animate-slide-up ${
         isNew ? 'card-new' : ''
-      } ${isEliminado ? 'opacity-50 grayscale' : ''}`} // <-- Bajamos opacidad y ponemos en grises si está eliminado
+      } ${isEliminado ? 'opacity-50 grayscale' : ''}`}
     >
       {/* Team flag + name */}
       <div className="flex items-center justify-between gap-3">
@@ -86,12 +91,12 @@ function ApuestaCard({ apuesta, isNew }) {
   )
 }
 
-function EmptyState() {
+function EmptyState({ message = "Aún no hay apuestas registradas.", subMessage = "¡Sé el primero en apostar!" }) {
   return (
-    <div className="col-span-full text-center py-20 flex flex-col items-center gap-4 animate-fade-in">
-      <span className="text-6xl select-none">⚽</span>
-      <p className="text-white/40 text-lg font-medium">Aún no hay apuestas registradas.</p>
-      <p className="text-white/25 text-sm">¡Sé el primero en apostar!</p>
+    <div className="col-span-full text-center py-12 flex flex-col items-center gap-3 animate-fade-in">
+      <span className="text-5xl select-none">⚽</span>
+      <p className="text-white/40 text-base font-medium">{message}</p>
+      <p className="text-white/25 text-sm">{subMessage}</p>
     </div>
   )
 }
@@ -121,6 +126,15 @@ function LoadingGrid() {
       ))}
     </>
   )
+}
+
+// ─── Nueva función para filtrar apuestas ──────────────────────────────────
+function filtrarApuestasVivas(apuestas) {
+  return apuestas.filter((apuesta) => !EQUIPOS_ELIMINADOS.includes(apuesta.equipo))
+}
+
+function filtrarApuestasEliminadas(apuestas) {
+  return apuestas.filter((apuesta) => EQUIPOS_ELIMINADOS.includes(apuesta.equipo))
 }
 
 // ─── Main Page ───────────────────────────────────────────────────────────────
@@ -183,6 +197,12 @@ export default function HomePage() {
     setErrorMsg('')
     setSuccessMsg('')
 
+    // 🔒 Verificar si el registro está bloqueado
+    if (REGISTRO_BLOQUEADO) {
+      setErrorMsg('🔒 El registro de apuestas está cerrado. ¡Gracias por participar!')
+      return
+    }
+
     if (!participante.trim()) {
       setErrorMsg('⚠️ El nombre del participante es obligatorio.')
       return
@@ -224,6 +244,10 @@ export default function HomePage() {
       setSubmitting(false)
     }
   }
+
+  // ── Filtrar apuestas ──
+  const apuestasVivas = filtrarApuestasVivas(apuestas)
+  const apuestasEliminadas = filtrarApuestasEliminadas(apuestas)
 
   // ── Render ──
   return (
@@ -288,12 +312,12 @@ export default function HomePage() {
                 <input
                   id="participante"
                   type="text"
-                  className="input-gold"
+                  className={`input-gold ${REGISTRO_BLOQUEADO ? 'opacity-50 cursor-not-allowed' : ''}`}
                   placeholder="Ej. Tetogol"
                   value={participante}
                   onChange={(e) => setParticipante(e.target.value)}
                   maxLength={100}
-                  disabled={submitting}
+                  disabled={submitting || REGISTRO_BLOQUEADO}
                   autoComplete="off"
                 />
               </div>
@@ -330,10 +354,10 @@ export default function HomePage() {
 
                   <select
                     id="equipo"
-                    className="input-gold flex-1"
+                    className={`input-gold flex-1 ${REGISTRO_BLOQUEADO ? 'opacity-50 cursor-not-allowed' : ''}`}
                     value={equipo}
                     onChange={(e) => setEquipo(e.target.value)}
-                    disabled={submitting}
+                    disabled={submitting || REGISTRO_BLOQUEADO}
                   >
                     <option value="">— Selecciona un equipo —</option>
                     {GRUPOS.map((grupo) => (
@@ -361,25 +385,44 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* Warning note */}
-              <p className="text-white/30 text-xs flex items-start gap-1.5">
-                <span>🔒</span>
-                <span>
-                  Los registros son permanentes y no pueden editarse ni eliminarse.
-                  No se permiten dos apuestas del mismo participante.
-                </span>
-              </p>
+              {/* Warning note - Se muestra solo si NO está bloqueado */}
+              {!REGISTRO_BLOQUEADO && (
+                <p className="text-white/30 text-xs flex items-start gap-1.5">
+                  <span>🔒</span>
+                  <span>
+                    Los registros son permanentes y no pueden editarse ni eliminarse.
+                    No se permiten dos apuestas del mismo participante.
+                  </span>
+                </p>
+              )}
+
+              {/* Bloqueo activo - Mensaje decorativo */}
+              {REGISTRO_BLOQUEADO && (
+                <div className="rounded-lg border border-[#FFD700]/30 bg-[rgba(255,215,0,0.05)] px-4 py-3 text-center">
+                  <p className="text-[#FFD700]/70 text-sm font-medium">
+                    🏁 Las apuestas están cerradas
+                  </p>
+                  <p className="text-white/30 text-xs mt-1">
+                    ¡Gracias a todos por participar!
+                  </p>
+                </div>
+              )}
 
               {/* Submit */}
               <button
                 type="submit"
-                className="btn-gold w-full"
-                disabled={submitting}
+                className={`btn-gold w-full ${REGISTRO_BLOQUEADO ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={submitting || REGISTRO_BLOQUEADO}
               >
                 {submitting ? (
                   <>
                     <span className="inline-block w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                     Guardando...
+                  </>
+                ) : REGISTRO_BLOQUEADO ? (
+                  <>
+                    <span>🔒</span>
+                    Registro cerrado
                   </>
                 ) : (
                   <>
@@ -392,19 +435,10 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── Divider ── */}
-        <div className="flex items-center gap-4">
-          <div className="flex-1 gold-line" />
-          <span className="text-[#FFD700]/60 text-sm font-semibold uppercase tracking-widest whitespace-nowrap">
-            Apuestas registradas
-          </span>
-          <div className="flex-1 gold-line" />
-        </div>
-
-       {/* ── Stats badge ── */}
+        {/* ── Stats Badges ── */}
         {!loading && apuestas.length > 0 && (
           <div className="flex justify-center items-center gap-4 animate-fade-in flex-wrap">
-            {/* Badge Participantes (Dinámico) */}
+            {/* Badge Total */}
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"
               style={{
@@ -414,33 +448,70 @@ export default function HomePage() {
               }}
             >
               <span>👥</span>
-              {apuestas.length} {apuestas.length <= 10 ? 'de 10' : ''} {apuestas.length === 1 ? 'participante' : 'participantes'}
+              Total: {apuestas.length} {apuestas.length === 1 ? 'participante' : 'participantes'}
             </div>
 
-            {/* Badge Premio Acumulado (Se actualiza en tiempo real) */}
+            {/* Badge Vivos */}
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-[0_0_15px_rgba(34,197,94,0.15)]"
               style={{
-                background: 'rgba(34,197,94,0.1)', 
+                background: 'rgba(34,197,94,0.1)',
+                border: '1px solid rgba(34,197,94,0.3)',
+                color: '#4ade80',
+              }}
+            >
+              <span>🟢</span>
+              Vivos: {apuestasVivas.length}
+            </div>
+
+            {/* Badge Eliminados */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-[0_0_15px_rgba(239,68,68,0.15)]"
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                color: '#f87171',
+              }}
+            >
+              <span>🔴</span>
+              Eliminados: {apuestasEliminadas.length}
+            </div>
+
+            {/* Badge Premio Acumulado */}
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-[0_0_15px_rgba(34,197,94,0.15)]"
+              style={{
+                background: 'rgba(34,197,94,0.1)',
                 border: '1px solid rgba(34,197,94,0.3)',
                 color: '#4ade80',
               }}
             >
               <span>💰</span>
-              Apuesta acumulada: ${(apuestas.length * 200).toLocaleString('es-MX')}
-                </div>
+              Premio: ${(apuestas.length * 200).toLocaleString('es-MX')}
+            </div>
           </div>
         )}
 
-        {/* ── Cards Grid ── */}
-        <section>
+        {/* ── SECCIÓN 1: APUESTAS VIVAS ── */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-green-500/30" />
+            <h3 className="text-green-400 font-bold text-sm uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+              <span>🟢</span> Equipos Vivos
+            </h3>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-green-500/30" />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading ? (
               <LoadingGrid />
-            ) : apuestas.length === 0 ? (
-              <EmptyState />
+            ) : apuestasVivas.length === 0 ? (
+              <EmptyState 
+                message="No hay apuestas de equipos vivos." 
+                subMessage="Espera a que alguien apueste por un equipo que siga en la copa." 
+              />
             ) : (
-              apuestas.map((a) => (
+              apuestasVivas.map((a) => (
                 <ApuestaCard
                   key={a.id}
                   apuesta={a}
@@ -449,16 +520,39 @@ export default function HomePage() {
               ))
             )}
           </div>
-        </section>
-      </div>
+        </div>
 
-      {/* ── Footer ── */}
-      <footer className="max-w-5xl mx-auto px-4 mt-20 text-center">
-        <div className="gold-line mb-6" />
-        <p className="text-white/20 text-xs">
-          🌍 FIFA World Cup 2026 · Apuestas familiares · Hecho con ❤️ en México
-        </p>
-      </footer>
+        {/* ── SECCIÓN 2: APUESTAS ELIMINADAS ── */}
+        {apuestasEliminadas.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-red-500/30" />
+              <h3 className="text-red-400 font-bold text-sm uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
+                <span>🔴</span> Equipos Eliminados
+              </h3>
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-red-500/30" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {apuestasEliminadas.map((a) => (
+                <ApuestaCard
+                  key={a.id}
+                  apuesta={a}
+                  isNew={a.id === newId}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Footer ── */}
+        <footer className="max-w-5xl mx-auto px-4 mt-20 text-center">
+          <div className="gold-line mb-6" />
+          <p className="text-white/20 text-xs">
+            🌍 FIFA World Cup 2026 · Apuestas familiares · Hecho con ❤️ en México
+          </p>
+        </footer>
+      </div>
     </main>
   )
 }
