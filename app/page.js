@@ -451,7 +451,7 @@ export default function HomePage() {
               <span>⭐</span> Segunda Oportunidad (Apuesta Principal)
             </h2>
             <p className="text-white/40 text-sm mb-5">
-              Si tu equipo fue eliminado, elige uno de los 6 equipos disponibles
+              Si tu equipo fue eliminado, elige uno de los 4 equipos disponibles
               para continuar compitiendo por la bolsa principal.
             </p>
 
@@ -516,7 +516,7 @@ export default function HomePage() {
                     disabled={submitting || FORMULARIO_BLOQUEADO}
                   >
                     <option value="">
-                      — Selecciona uno de los 6 equipos —
+                      — Selecciona uno de los 4 equipos —
                     </option>
                     {GRUPOS.map((grupo) => {
                       // 1. Filtrar solo los 7 equipos permitidos en esta fase
@@ -718,7 +718,7 @@ export default function HomePage() {
             ) : apuestasSegundaOportunidad.length === 0 ? (
               <EmptyState
                 message="Nadie ha tomado la segunda oportunidad aún."
-                subMessage="¡Sé el primero en elegir entre los 7 equipos disponibles!"
+                subMessage="¡Sé el primero en elegir entre los 4 equipos disponibles!"
               />
             ) : (
               apuestasSegundaOportunidad.map((a) => (
