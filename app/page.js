@@ -17,7 +17,7 @@ import {
 
 // ════════════════════════════════════════════════════════════════════
 // 🔒 BLOQUEO MANUAL DE REGISTRO - Cambia esto a true si quieres bloquear antes
-const REGISTRO_BLOQUEADO = false;
+const REGISTRO_BLOQUEADO = true;
 // ════════════════════════════════════════════════════════════════════
 
 // 🔒 BLOQUEO TOTAL: Se bloquea si activas el manual O si ya hay un campeón mundial
